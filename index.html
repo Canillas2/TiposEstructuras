@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gabinete de Ingeniería v3.2 - Laboratorio de Estructuras</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .glass-effect { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .hidden-content { display: none; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
+
+    <div id="app-container" class="max-w-2xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
+        
+        <!-- Header -->
+        <header class="bg-[#1e293b] p-6 text-white flex justify-between items-center border-b-4 border-sky-500">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-microchip text-sky-400 text-xl"></i>
+                <h1 class="text-xl font-black uppercase tracking-widest">Lab Estructuras v3.2</h1>
+            </div>
+            <div id="game-stats" class="text-right hidden-content">
+                <div id="display-student-name" class="text-[10px] text-sky-300 font-mono uppercase"></div>
+                <div class="bg-sky-500 px-3 py-0.5 rounded-full text-[9px] font-black uppercase">
+                    Análisis <span id="current-step">1</span>/9
+                </div>
+            </div>
+        </header>
+
+        <!-- Pantalla de Inicio -->
+        <section id="screen-start" class="p-10 text-center">
+            <div class="mb-6 flex justify-center">
+                <div class="bg-sky-50 p-6 rounded-full border-2 border-sky-100 shadow-inner">
+                    <i class="fas fa-drafting-compass text-5xl text-sky-600"></i>
+                </div>
+            </div>
+            <h2 class="text-3xl font-black mb-2 text-slate-900 uppercase">Verificación Técnica</h2>
+            <p class="text-slate-500 mb-8 text-sm max-w-sm mx-auto">
+                Identifica el sistema estructural basándote exclusivamente en el plano técnico.
+            </p>
+            
+            <div class="max-w-xs mx-auto space-y-4">
+                <div class="relative">
+                    <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="input-name" placeholder="Nombre completo del alumno" 
+                           class="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-200 rounded-xl focus:border-sky-500 outline-none font-bold text-slate-700 transition-all">
+                </div>
+                <button onclick="startGame()" 
+                        class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-4 px-10 rounded-xl transition-all shadow-lg w-full uppercase tracking-widest text-sm">
+                    Acceder al Terminal
+                </button>
+            </div>
+        </section>
+
+        <!-- Pantalla de Juego -->
+        <section id="screen-game" class="p-8 hidden-content">
+            <div class="mb-6 h-80 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 relative flex items-center justify-center overflow-hidden">
+                <img id="structure-img" src="" alt="Plano" class="max-w-full max-h-full object-contain p-4 mix-blend-multiply">
+                
+                <div class="absolute top-4 left-4 bg-white/80 backdrop-blur px-3 py-1 rounded-full border border-slate-200 flex items-center gap-2">
+                    <i class="fas fa-eye-slash text-[10px] text-slate-400"></i>
+                    <span class="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Identidad Oculta</span>
+                </div>
+                <div id="revealed-tag" class="absolute inset-x-0 bottom-0 bg-sky-900/90 text-white py-2 text-center text-[10px] font-black uppercase tracking-widest hidden-content"></div>
+            </div>
+
+            <div id="category-grid" class="grid grid-cols-2 gap-3 mb-8">
+                <!-- Botones generados por JS -->
+            </div>
+
+            <div id="feedback-box" class="hidden-content p-6 rounded-xl border-l-8 shadow-lg">
+                <div class="flex gap-4">
+                    <div id="feedback-icon-bg" class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0">
+                        <i id="feedback-icon" class="text-white text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 id="feedback-title" class="text-lg font-black mb-1 uppercase"></h3>
+                        <p id="feedback-desc" class="text-slate-600 text-[11px] leading-relaxed mb-4"></p>
+                        <button onclick="nextQuestion()" class="w-full bg-slate-800 text-white py-3 rounded-lg font-bold hover:bg-slate-900 uppercase text-[10px] tracking-widest">
+                            Siguiente Caso →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pantalla de Resultados -->
+        <section id="screen-results" class="p-10 text-center hidden-content">
+            <i class="fas fa-trophy text-6xl text-amber-500 mb-4"></i>
+            <h2 class="text-2xl font-black text-slate-900 uppercase">Reporte de Evaluación</h2>
+            <div class="mt-2 mb-8 inline-block px-4 py-1 bg-slate-800 text-sky-400 rounded-full font-mono text-[10px] tracking-widest">
+                ALUMNO/A: <span id="final-name"></span>
+            </div>
+
+            <div class="flex justify-center gap-10 mb-8">
+                <div class="text-center">
+                    <div id="final-score" class="text-4xl font-black text-slate-900">0/9</div>
+                    <div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Puntos</div>
+                </div>
+                <div class="text-center">
+                    <div id="final-percent" class="text-4xl font-black text-sky-600">0%</div>
+                    <div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Aptitud</div>
+                </div>
+            </div>
+
+            <div class="bg-amber-50 border-2 border-amber-200 p-5 rounded-2xl mb-8 flex items-start gap-4 text-left">
+                <div class="bg-amber-100 p-2 rounded-lg">
+                    <i class="fas fa-camera text-amber-600"></i>
+                </div>
+                <div>
+                    <h4 class="font-black text-amber-900 text-xs uppercase mb-1">Evidencia Classroom:</h4>
+                    <p class="text-amber-800 text-[10px] leading-tight font-medium">
+                        Realiza una <strong>captura de pantalla</strong> de este reporte final (donde se vea tu nombre y nota) y súbela a la tarea de <strong>Google Classroom</strong>.
+                    </p>
+                </div>
+            </div>
+
+            <button onclick="location.reload()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 px-8 rounded-xl transition-all uppercase text-[10px] border border-slate-200">
+                Reiniciar Auditoría
+            </button>
+        </section>
+
+        <footer class="bg-slate-50 p-4 text-[8px] text-slate-400 text-center border-t border-slate-100 font-mono uppercase tracking-[0.3em]">
+            Departamento de Tecnología | Adaptado 2025
+        </footer>
+    </div>
+
+    <script>
+        const IMAGES = [
+            "https://i.ibb.co/FkWh6SgK/pira-mide-escalonada.png",           // 0 - Pirámide Escalonada
+            "https://i.ibb.co/JR9PtxY1/po-rtico-cla-sico.png",              // 1 - Pórtico Clásico
+            "https://i.ibb.co/jkJDQZ8J/cu-pula-geome-trica.png",            // 2 - Cúpula Geométrica
+            "https://i.ibb.co/fz7nQN2R/estructura-reticular.png",         // 3 - Estructura Reticular
+            "https://i.ibb.co/j9m0PJyr/torre-de-alta-tensio-n.png",           // 4 - Torre de Alta Tensión
+            "https://i.ibb.co/v4pQkcWY/puente-atirantado.png",            // 5 - Puente Atirantado
+            "https://i.ibb.co/kYkMmqY/cubierta-textil.png",              // 6 - Cubierta Textil
+            "https://i.ibb.co/ZvQ5hQm/chasis-laminar.png",               // 7 - Chasis Laminar
+            "https://i.ibb.co/1fdfHvKt/domo-geode-sico.png"                // 8 - Domo Geodésico
+        ];
+
+        const ESTRUCTURAS = [
+            { nombre: "Pirámide Escalonada", categoria: "Masiva", desc: "Gran acumulación de material sin huecos." },
+            { nombre: "Pórtico Clásico", categoria: "Adintelada", desc: "Uso de dinteles horizontales sobre columnas verticales." },
+            { nombre: "Cúpula Geométrica", categoria: "En arco, bóveda o cúpula", desc: "Estructura semiesférica que reparte cargas lateralmente." },
+            { nombre: "Estructura Reticular", categoria: "Entramada", desc: "Esqueleto de acero formado por pilares y vigas." },
+            { nombre: "Torre de Alta Tensión", categoria: "Triangulada", desc: "Barras unidas formando triángulos indeformables." },
+            { nombre: "Puente Atirantado", categoria: "Atirantada o colgante", desc: "Cables de acero que sostienen el tablero." },
+            { nombre: "Cubierta Textil", categoria: "Atirantada o colgante", desc: "Membrana tensada mediante mástiles y cables." },
+            { nombre: "Chasis Laminar", categoria: "Laminar", desc: "Láminas delgadas que resisten por su curvatura." },
+            { nombre: "Domo Geodésico", categoria: "Geodésica", desc: "Red de triángulos que forman una superficie esférica." }
+        ];
+
+        const CATEGORIAS = ["Masiva", "Adintelada", "En arco, bóveda o cúpula", "Entramada", "Triangulada", "Atirantada o colgante", "Laminar", "Geodésica"];
+
+        let studentName = "";
+        let currentIdx = 0;
+        let score = 0;
+        let gameQuestions = [];
+        let canAnswer = true;
+
+        function startGame() {
+            const input = document.getElementById('input-name');
+            if (input.value.trim() === "") {
+                alert("Por favor, introduce tu nombre.");
+                return;
+            }
+            studentName = input.value.trim();
+            gameQuestions = [...ESTRUCTURAS].sort(() => Math.random() - 0.5);
+            
+            document.getElementById('screen-start').classList.add('hidden-content');
+            document.getElementById('screen-game').classList.remove('hidden-content');
+            document.getElementById('game-stats').classList.remove('hidden-content');
+            document.getElementById('display-student-name').innerText = studentName;
+            
+            setupCategoryButtons();
+            loadQuestion();
+        }
+
+        function setupCategoryButtons() {
+            const grid = document.getElementById('category-grid');
+            grid.innerHTML = "";
+            CATEGORIAS.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = "cat-btn py-3 px-3 bg-white text-slate-700 border-2 border-slate-200 rounded-lg text-[10px] font-bold uppercase transition-all hover:border-sky-500 hover:shadow-md";
+                btn.innerText = cat;
+                btn.onclick = () => checkAnswer(cat, btn);
+                grid.appendChild(btn);
+            });
+        }
+
+        function loadQuestion() {
+            canAnswer = true;
+            const q = gameQuestions[currentIdx];
+            document.getElementById('current-step').innerText = currentIdx + 1;
+            document.getElementById('feedback-box').classList.add('hidden-content');
+            document.getElementById('revealed-tag').classList.add('hidden-content');
+            
+            // Buscar índice original para usar imagen fija
+            const originalIndex = ESTRUCTURAS.findIndex(e => e.nombre === q.nombre);
+            const imgEl = document.getElementById('structure-img');
+            imgEl.src = IMAGES[originalIndex];
+        }
+
+        function checkAnswer(selected, btn) {
+            if (!canAnswer) return;
+            canAnswer = false;
+            
+            const q = gameQuestions[currentIdx];
+            const isCorrect = selected === q.categoria;
+            if (isCorrect) score++;
+
+            // Reveal Name on Image
+            const tag = document.getElementById('revealed-tag');
+            tag.innerText = "Revelado: " + q.nombre;
+            tag.classList.remove('hidden-content');
+
+            // Feedback Box
+            const box = document.getElementById('feedback-box');
+            const title = document.getElementById('feedback-title');
+            const desc = document.getElementById('feedback-desc');
+            const iconBg = document.getElementById('feedback-icon-bg');
+            const icon = document.getElementById('feedback-icon');
+
+            box.className = `p-6 rounded-xl border-l-8 shadow-lg ${isCorrect ? 'bg-emerald-50 border-emerald-500' : 'bg-rose-50 border-rose-500'}`;
+            title.innerText = isCorrect ? "¡Diagnóstico Correcto!" : "Categoría: " + q.categoria;
+            title.className = `text-lg font-black mb-1 uppercase ${isCorrect ? 'text-emerald-800' : 'text-rose-800'}`;
+            desc.innerText = q.desc;
+            iconBg.className = `w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${isCorrect ? 'bg-emerald-500' : 'bg-rose-500'}`;
+            icon.className = isCorrect ? "fas fa-check-circle" : "fas fa-times-circle";
+            
+            box.classList.remove('hidden-content');
+
+            // Visual feedback on all buttons
+            document.querySelectorAll('.cat-btn').forEach(b => {
+                if (b.innerText === q.categoria) {
+                    b.classList.add('bg-sky-600', 'text-white', 'border-sky-700');
+                    b.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
+                } else {
+                    b.classList.add('bg-slate-100', 'text-slate-300');
+                    b.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
+                }
+            });
+        }
+
+        function nextQuestion() {
+            currentIdx++;
+            if (currentIdx < gameQuestions.length) {
+                setupCategoryButtons(); // Reset buttons styles
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('screen-game').classList.add('hidden-content');
+            document.getElementById('game-stats').classList.add('hidden-content');
+            document.getElementById('screen-results').classList.remove('hidden-content');
+            
+            document.getElementById('final-name').innerText = studentName;
+            document.getElementById('final-score').innerText = `${score}/${gameQuestions.length}`;
+            document.getElementById('final-percent').innerText = Math.round((score / gameQuestions.length) * 100) + "%";
+        }
+    </script>
+</body>
+</html>
